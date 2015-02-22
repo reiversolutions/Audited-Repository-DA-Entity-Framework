@@ -1,2 +1,3 @@
-# Audited-Repository-DA-Entity-Framework
+# Audited Repository (Data Access - Entity-Framework)
+
 Entity framework data access implementation of generic repository pattern
