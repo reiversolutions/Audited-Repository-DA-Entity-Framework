@@ -1,4 +1,5 @@
 ﻿using AuditedRepository.Interfaces.Models;
+using AuditedRepository.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -11,8 +12,8 @@ namespace AuditedRepository.DA.EntityFramework.Interfaces.Contexts
     /// <summary>
     /// Interface for DbContext
     /// </summary>
-    /// <typeparam name="T">Enity implementing IEnity</typeparam>
-    public interface IDbContext<T> where T : IEntity
+    /// <typeparam name="T">Enity extending Enity</typeparam>
+    public interface IDbContext<T> where T : Entity
     {
         /// <summary>
         /// Dispose of context

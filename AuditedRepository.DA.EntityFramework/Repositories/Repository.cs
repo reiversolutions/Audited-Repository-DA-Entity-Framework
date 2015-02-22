@@ -1,6 +1,7 @@
 ﻿using AuditedRepository.DA.EntityFramework.Interfaces.Contexts;
 using AuditedRepository.Interfaces.Models;
 using AuditedRepository.Interfaces.Repositories;
+using AuditedRepository.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -14,8 +15,8 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
     /// <summary>
     /// Entity framework implementation of IRepository
     /// </summary>
-    /// <typeparam name="T">Enity implementing IEnity</typeparam>
-    public class Repository<T> : IRepository<T> where T : IEntity
+    /// <typeparam name="T">Enity extending Enity</typeparam>
+    public class Repository<T> : IRepository<T> where T : Entity
     {
         private DbSet<T> _set { get; set; }
         private IDbContext<T> _context;
@@ -24,6 +25,16 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         {
             _context = context;
             _set = _context.Set();
+        }
+
+        /// <summary>
+        /// Check if a query returns any entities
+        /// </summary>
+        /// <param name="query">Filter query</param>
+        /// <returns>Any entities returned</returns>
+        public bool Any(Expression<Func<T, bool>> query = null)
+        {
+            return _set.Any(query);
         }
 
         /// <summary>
@@ -36,8 +47,8 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <param name="includeProperties">Included properties</param>
         /// <returns>List of entities</returns>
         public IEnumerable<T> Find(
-            Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, 
-            IOrderedQueryable<T>> orderBy = null, 
+            Expression<Func<T, bool>> filter = null, 
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, 
             long offset = 0, 
             long take = long.MaxValue, 
             string includeProperties = "")
