@@ -30,9 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AuditedRepository, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\AuditedRepository.0.0.3-beta\lib\AuditedRepository.dll</HintPath>
+    <Reference Include="AuditedRepository">
+      <HintPath>..\..\packages\AuditedRepository.0.0.4-beta\lib\AuditedRepository.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.dll</HintPath>

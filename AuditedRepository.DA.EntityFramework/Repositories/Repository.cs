@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,11 +31,19 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <summary>
         /// Check if a query returns any entities
         /// </summary>
-        /// <param name="query">Filter query</param>
+        /// <param name="filter">Filter query</param>
         /// <returns>Any entities returned</returns>
-        public bool Any(Expression<Func<T, bool>> query = null)
+        public bool Any(Expression<Func<T, bool>> filter = null)
         {
-            return _set.Any(query);
+            IQueryable<T> query = _set;
+            
+            if (query != null)
+            {
+                query = query.Where(filter);
+            }
+            query = query.Where(x => !x.IsArchived);
+
+            return query.Any();
         }
 
         /// <summary>
@@ -59,6 +68,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
             {
                 query = query.Where(filter);
             }
+            query = query.Where(x => !x.IsArchived);
 
             foreach (var includeProperty in includeProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -80,12 +90,13 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// Find specific entity
         /// </summary>
         /// <param name="id">Primary key identifier</param>
+        /// <param name="bypassArchived">Ignore the archive filter</param>
         /// <returns>Entity</returns>
-        public T FindById(string id)
+        public T FindById(string id, bool bypassArchived = false)
         {
-            return _set.FirstOrDefault(x => x.Id == id);
+            return _set.FirstOrDefault(x => (bypassArchived || !x.IsArchived) && x.Id == id);
         }
-
+        
         /// <summary>
         /// Insert a entity into the database
         /// </summary>
@@ -122,12 +133,16 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Successful</returns>
         public bool InsertOrUpdate(T entity)
         {
-            T result = FindById(entity.Id);
+            T result = FindById(entity.Id, true);
             if (result != null)
             {
                 return Update(entity);
             } else
             {
+                if (result.IsArchived)
+                {
+                    return false;
+                }
                 return Insert(entity);
             }
         }
