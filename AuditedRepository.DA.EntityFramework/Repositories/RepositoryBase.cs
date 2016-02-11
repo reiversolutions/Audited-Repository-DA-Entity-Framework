@@ -16,13 +16,13 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
     /// <summary>
     /// Entity framework implementation of IRepository
     /// </summary>
-    /// <typeparam name="T">Enity extending Enity</typeparam>
-    public class Repository<T> : IRepository<T> where T : Entity
+    /// <typeparam name="T">Etnity extending Etnity</typeparam>
+    public abstract class RepositoryBase<T> : IRepository<T> where T : Entity
     {
         private DbSet<T> _set { get; set; }
         private IDbContext<T> _context;
 
-        public Repository(IDbContext<T> context)
+        public RepositoryBase(IDbContext<T> context)
         {
             _context = context;
             _set = _context.Set();
@@ -33,7 +33,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// </summary>
         /// <param name="filter">Filter query</param>
         /// <returns>Any entities returned</returns>
-        public bool Any(Expression<Func<T, bool>> filter = null)
+        public virtual bool Any(Expression<Func<T, bool>> filter = null)
         {
             IQueryable<T> query = _set;
             
@@ -55,7 +55,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <param name="take">Pagination amount</param>
         /// <param name="includeProperties">Included properties</param>
         /// <returns>List of entities</returns>
-        public IEnumerable<T> Find(
+        public virtual IEnumerable<T> Find(
             Expression<Func<T, bool>> filter = null, 
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, 
             long offset = 0, 
@@ -92,7 +92,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <param name="id">Primary key identifier</param>
         /// <param name="bypassArchived">Ignore the archive filter</param>
         /// <returns>Entity</returns>
-        public T FindById(string id, bool bypassArchived = false)
+        public virtual T FindById(string id, bool bypassArchived = false)
         {
             return _set.FirstOrDefault(x => (bypassArchived || !x.IsArchived) && x.Id == id);
         }
@@ -102,7 +102,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// </summary>
         /// <param name="entity">Entity to be inserted</param>
         /// <returns>Successful</returns>
-        public bool Insert(T entity)
+        public virtual bool Insert(T entity)
         {
             DateTime now = DateTime.Now;
             entity.ModifiedDate = now;
@@ -118,7 +118,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// </summary>
         /// <param name="entity">Entity to update</param>
         /// <returns>Successful</returns>
-        public bool Update(T entity)
+        public virtual bool Update(T entity)
         {
             entity.ModifiedDate = DateTime.Now;
             T result = _set.Attach(entity);
@@ -131,7 +131,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// </summary>
         /// <param name="entity">Entity to update or insert</param>
         /// <returns>Successful</returns>
-        public bool InsertOrUpdate(T entity)
+        public virtual bool InsertOrUpdate(T entity)
         {
             T result = FindById(entity.Id, true);
             if (result != null)
@@ -153,7 +153,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <param name="id">Primary key identifier</param>
         /// <param name="archive">Perform a soft delete</param>
         /// <returns>Successful</returns>
-        public bool Delete(string id, bool archive = true)
+        public virtual bool Delete(string id, bool archive = true)
         {
             return Delete(FindById(id), archive);
         }
@@ -164,7 +164,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <param name="entity">Entity to delete</param>
         /// <param name="archive">Perform a soft delete</param>
         /// <returns>Successful</returns>
-        public bool Delete(T entity, bool archive = true)
+        public virtual bool Delete(T entity, bool archive = true)
         {
             if (archive)
             {
@@ -184,7 +184,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// Save all previous data modifications
         /// </summary>
         /// <returns>Successful</returns>
-        public bool Save()
+        public virtual bool Save()
         {
             int result = _context.SaveChanges();
             return result >= 0;

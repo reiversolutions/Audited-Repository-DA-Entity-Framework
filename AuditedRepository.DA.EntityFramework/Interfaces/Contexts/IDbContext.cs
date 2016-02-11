@@ -12,7 +12,7 @@ namespace AuditedRepository.DA.EntityFramework.Interfaces.Contexts
     /// <summary>
     /// Interface for DbContext
     /// </summary>
-    /// <typeparam name="T">Enity extending Enity</typeparam>
+    /// <typeparam name="T">Entity extending Entity</typeparam>
     public interface IDbContext<T> where T : Entity
     {
         /// <summary>
