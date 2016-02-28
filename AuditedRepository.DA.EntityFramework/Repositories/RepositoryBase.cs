@@ -129,7 +129,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// </summary>
         /// <param name="entity">Entity to update or insert</param>
         /// <returns>Successful</returns>
-        public virtual bool InsertOrUpdate(T entity)
+        public bool InsertOrUpdate(T entity)
         {
             T result = FindById(entity.Id, true);
             if (result != null)

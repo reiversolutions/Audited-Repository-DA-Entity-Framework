@@ -1,5 +1,7 @@
 ﻿using AuditedRepository.DA.EntityFramework.Interfaces.Contexts;
+using AuditedRepository.Enums;
 using AuditedRepository.Interfaces.Models;
+using AuditedRepository.Interfaces.Parsers;
 using AuditedRepository.Models;
 using System;
 using System.Collections.Generic;
@@ -16,10 +18,12 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
     public class AuditRepository<T> : RepositoryBase<T> where T : class, IEntity
     {
         private IDbContext _context;
+        private IParser<T> _parser;
 
-        public AuditRepository(IDbContext context): base(context)
+        public AuditRepository(IDbContext context, IParser<T> parser): base(context)
         {
             _context = context;
+            _parser = parser;
         }
 
         /// <summary>
@@ -34,7 +38,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
             if (result)
             {
                 // Audit insert
-
+                var auditObj = _parser.Parse(entity, AuditAction.insert);
             }
 
             return result;
@@ -52,25 +56,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
             if (result)
             {
                 // Audit update
-
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Update an entity if it exists or insert it. Write an audit of the changes.
-        /// </summary>
-        /// <param name="entity">Entity to update or insert</param>
-        /// <returns>Successful</returns>
-        public override bool InsertOrUpdate(T entity)
-        {
-            var result = base.InsertOrUpdate(entity);
-
-            if (result)
-            {
-                // Audit insert || update
-
+                var auditObj = _parser.Parse(entity, AuditAction.update);
             }
 
             return result;
@@ -89,7 +75,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
             if (result)
             {
                 // Audit delete
-
+                var auditObj = _parser.Parse(entity, AuditAction.delete);
             }
 
             return result;
