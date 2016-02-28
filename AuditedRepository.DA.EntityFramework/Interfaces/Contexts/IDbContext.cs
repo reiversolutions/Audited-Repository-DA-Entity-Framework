@@ -3,6 +3,7 @@ using AuditedRepository.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,23 +13,22 @@ namespace AuditedRepository.DA.EntityFramework.Interfaces.Contexts
     /// <summary>
     /// Interface for DbContext
     /// </summary>
-    /// <typeparam name="T">Entity extending Entity</typeparam>
-    public interface IDbContext<T> where T : Entity
+    public interface IDbContext : IDisposable, IObjectContextAdapter
     {
-        /// <summary>
-        /// Dispose of context
-        /// </summary>
-        void Dispose();
         /// <summary>
         /// Save all modified data
         /// </summary>
         /// <returns></returns>
         int SaveChanges();
+        
         /// <summary>
-        /// Get DbSet from context
+        /// Retrieve DbSet
         /// </summary>
-        /// <returns></returns>
-        DbSet<T> Set();
+        /// <typeparam name="T">Type of class</typeparam>
+        /// <returns>DbSet</returns>
+        DbSet<T> Set<T>() where T : class;
+
+
         /// <summary>
         /// Get Database
         /// </summary>

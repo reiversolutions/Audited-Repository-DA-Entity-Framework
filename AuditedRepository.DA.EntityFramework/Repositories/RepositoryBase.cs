@@ -17,15 +17,13 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
     /// Entity framework implementation of IRepository
     /// </summary>
     /// <typeparam name="T">Etnity extending Etnity</typeparam>
-    public abstract class RepositoryBase<T> : IRepository<T> where T : Entity
+    public abstract class RepositoryBase<T> : IRepository<T> where T : class, IEntity
     {
-        private DbSet<T> _set { get; set; }
-        private IDbContext<T> _context;
+        private IDbContext _context;
 
-        public RepositoryBase(IDbContext<T> context)
+        public RepositoryBase(IDbContext context)
         {
             _context = context;
-            _set = _context.Set();
         }
 
         /// <summary>
@@ -35,7 +33,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Any entities returned</returns>
         public virtual bool Any(Expression<Func<T, bool>> filter = null)
         {
-            IQueryable<T> query = _set;
+            IQueryable<T> query = _context.Set<T>();
             
             if (query != null)
             {
@@ -62,7 +60,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
             long take = long.MaxValue, 
             string includeProperties = "")
         {
-            IQueryable<T> query = _set;
+            IQueryable<T> query = _context.Set<T>();
 
             if (filter != null)
             {
@@ -94,7 +92,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Entity</returns>
         public virtual T FindById(string id, bool bypassArchived = false)
         {
-            return _set.FirstOrDefault(x => (bypassArchived || !x.IsArchived) && x.Id == id);
+            return _context.Set<T>().FirstOrDefault(x => (bypassArchived || !x.IsArchived) && x.Id == id);
         }
         
         /// <summary>
@@ -108,7 +106,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
             entity.ModifiedDate = now;
             entity.CreatedDate = now;
 
-            T result = _set.Add(entity);
+            T result = _context.Set<T>().Add(entity);
 
             return result != null;
         }
@@ -121,7 +119,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         public virtual bool Update(T entity)
         {
             entity.ModifiedDate = DateTime.Now;
-            T result = _set.Attach(entity);
+            T result = _context.Set<T>().Attach(entity);
 
             return result != null;
         }
@@ -174,7 +172,7 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
                 return Update(entity);
             } else
             {
-                T result = _set.Remove(entity);
+                T result = _context.Set<T>().Remove(entity);
 
                 return result != null;
             }

@@ -1,4 +1,5 @@
 ﻿using AuditedRepository.DA.EntityFramework.Interfaces.Contexts;
+using AuditedRepository.Interfaces.Models;
 using AuditedRepository.Models;
 using System;
 using System.Collections.Generic;
@@ -11,12 +12,14 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
     /// <summary>
     /// Entity framework implementation of IRepository which audits changes
     /// </summary>
-    /// <typeparam name="T">Entity extending Entity</typeparam>
-    public class AuditRepository<T> : RepositoryBase<T> where T : Entity
+    /// <typeparam name="T">Entity extending AuditEntity</typeparam>
+    public class AuditRepository<T> : RepositoryBase<T> where T : class, IEntity
     {
-        public AuditRepository(IDbContext<T> context): base(context)
-        {
+        private IDbContext _context;
 
+        public AuditRepository(IDbContext context): base(context)
+        {
+            _context = context;
         }
 
         /// <summary>
@@ -26,7 +29,15 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Successful</returns>
         public override bool Insert(T entity)
         {
-            return base.Insert(entity);
+            var result = base.Insert(entity);
+
+            if (result)
+            {
+                // Audit insert
+
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -36,7 +47,15 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Successful</returns>
         public override bool Update(T entity)
         {
-            return base.Update(entity);
+            var result = base.Update(entity);
+
+            if (result)
+            {
+                // Audit update
+
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -46,7 +65,15 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Successful</returns>
         public override bool InsertOrUpdate(T entity)
         {
-            return base.InsertOrUpdate(entity);
+            var result = base.InsertOrUpdate(entity);
+
+            if (result)
+            {
+                // Audit insert || update
+
+            }
+
+            return result;
         }
         
         /// <summary>
@@ -57,7 +84,15 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Successful</returns>
         public override bool Delete(T entity, bool archive = true)
         {
-            return base.Delete(entity, archive);
+            var result = base.Delete(entity, archive);
+
+            if (result)
+            {
+                // Audit delete
+
+            }
+
+            return result;
         }
     }
 }
