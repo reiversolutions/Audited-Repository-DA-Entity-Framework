@@ -1,7 +1,9 @@
 ﻿using AuditedRepository.DA.EntityFramework.Interfaces.Contexts;
 using AuditedRepository.Interfaces.Models;
 using AuditedRepository.Interfaces.Repositories;
+using AuditedRepository.Interfaces.Validators;
 using AuditedRepository.Models;
+using AuditedRepository.Validators;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -20,10 +22,12 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
     public abstract class RepositoryBase<T> : IRepository<T> where T : class, IEntity
     {
         private IDbContext _context;
+        private IValidator<T> _validator;
 
         public RepositoryBase(IDbContext context)
         {
             _context = context;
+            _validator = new EntityValidator<T>();
         }
 
         /// <summary>
@@ -102,6 +106,8 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Successful</returns>
         public virtual bool Insert(T entity)
         {
+            _validator.Validate(entity);
+
             DateTime now = DateTime.Now;
             entity.ModifiedDate = now;
             entity.CreatedDate = now;
@@ -118,6 +124,8 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Successful</returns>
         public virtual bool Update(T entity)
         {
+            _validator.Validate(entity);
+
             entity.ModifiedDate = DateTime.Now;
             T result = _context.Set<T>().Attach(entity);
 
@@ -131,6 +139,8 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Successful</returns>
         public bool InsertOrUpdate(T entity)
         {
+            _validator.Validate(entity);
+
             T result = FindById(entity.Id, true);
             if (result != null)
             {
@@ -164,6 +174,8 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
         /// <returns>Successful</returns>
         public virtual bool Delete(T entity, bool archive = true)
         {
+            _validator.Validate(entity);
+
             if (archive)
             {
                 entity.IsArchived = true;
