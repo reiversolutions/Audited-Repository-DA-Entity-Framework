@@ -61,31 +61,39 @@ namespace AuditedRepository.DA.EntityFramework.Repositories
             Expression<Func<T, bool>> filter = null, 
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, 
             long offset = 0, 
-            long take = long.MaxValue, 
+            long take = int.MaxValue, 
             string includeProperties = "")
         {
             IQueryable<T> query = _context.Set<T>();
 
+            // Filter
             if (filter != null)
             {
                 query = query.Where(filter);
             }
             query = query.Where(x => !x.IsArchived);
 
+            // Inlcude
             foreach (var includeProperty in includeProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 query = query.Include(includeProperty);
             }
 
+            // Order
             if (orderBy != null)
             {
-                return orderBy(query).ToList();
+                query = orderBy(query);
             }
-            else
+
+            // Offset and take
+            query = query.Skip((int) offset);
+            if (take < int.MaxValue)
             {
-                return query.ToList();
+                query = query.Take((int)take);
             }
+
+            return query.ToList();
         }
 
         /// <summary>

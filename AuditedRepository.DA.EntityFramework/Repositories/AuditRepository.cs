@@ -2,6 +2,7 @@
 using AuditedRepository.Enums;
 using AuditedRepository.Interfaces.Models;
 using AuditedRepository.Interfaces.Parsers;
+using AuditedRepository.Interfaces.Repositories;
 using AuditedRepository.Models;
 using System;
 using System.Collections.Generic;
